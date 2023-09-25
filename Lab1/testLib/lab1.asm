@@ -1,6 +1,6 @@
 section .data
 
-test_string: db "1234567890", 0
+test_string: db "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15", 0
 
 section .text
 
@@ -23,34 +23,32 @@ string_length:
 ; Takes a pointer to a null-terminated string and prints it to stdout
 print_string:
     xor rax, rax
-.loop:
-    cmp byte [rdi+rax], 0
-    je .end
     push rdi
-    push rax
-
-    ; print a single character
-    lea rsi, [rdi+rax]
+    call string_length
+    pop rsi ; pointer to string start
+    mov rdx, rax ; amount of bytes
     mov rax, 1 ; syscall number
     mov rdi, 1 ; file descriptor (1 - stdout)
-    mov rdx, 1 ; amount of bytes
     syscall
-
-    pop rax
-    pop rdi
-    inc rax
-    jmp .loop
-.end:
     ret
 
 ; Takes a character code and prints it to stdout
 print_char:
+    push rdi
     xor rax, rax
+    mov rsi, rsp
+    mov rax, 1 ; syscall number
+    mov rdi, 1 ; file descriptor (1 - stdout)
+    mov rdx, 1 ; amount of bytes
+    syscall
+    pop rdi
     ret
 
 ; Translates a string (prints a character with code 0xA)
 print_newline:
     xor rax, rax
+    mov rdi, 10
+    call print_char
     ret
 
 ; Prints an unsigned 8-byte number in decimal format
@@ -103,7 +101,10 @@ string_copy:
 global _start
 
 _start:
+    ; mov rdi, 65
+    ; call print_char
     mov rdi, test_string
     call print_string
+    call print_newline
 
     call exit
