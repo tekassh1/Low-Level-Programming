@@ -1,5 +1,6 @@
 section .data
 
+decimal_numbers: db "0123456789"
 test_string: db "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15", 0
 
 section .text
@@ -56,6 +57,27 @@ print_newline:
 ; Don't forget to convert digits to their ASCII codes.
 print_uint:
     xor rax, rax
+    xor r8, r8
+    xor r9, r9
+    mov r9, 10
+.loop:
+    cmp rdi, 0
+    je .end
+    mov rax, rdi
+    xor rdx, rdx    ; div divides RAX:RDX pair
+    div r9
+    mov r8, rax
+    mov rdi, [decimal_numbers + rdx] ; remainder of division stored in rdx (intel docs)
+
+    push r8
+    push r9
+    call print_char
+    pop r9
+    pop r8
+
+    mov rdi, r8
+    jmp .loop
+.end:
     ret
 
 ; Prints a signed 8-byte number in decimal format
@@ -101,10 +123,7 @@ string_copy:
 global _start
 
 _start:
-    ; mov rdi, 65
-    ; call print_char
-    mov rdi, test_string
-    call print_string
+    mov rdi, 0x255
+    call print_uint
     call print_newline
-
     call exit
