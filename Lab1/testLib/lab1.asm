@@ -36,7 +36,6 @@ print_string:
 ; Takes a character code and prints it to stdout
 print_char:
     push rdi
-    xor rax, rax
     mov rsi, rsp
     mov rax, 1 ; syscall number
     mov rdi, 1 ; file descriptor (1 - stdout)
@@ -59,24 +58,27 @@ print_uint:
     xor rax, rax
     xor r8, r8
     xor r9, r9
+    xor r10, r10
     mov r9, 10
-.loop:
+    mov r10, rsp    ; save default stack pointer to define end of out number
+.count_loop:
     cmp rdi, 0
-    je .end
+    je .print_loop
     mov rax, rdi
     xor rdx, rdx    ; div divides RAX:RDX pair
     div r9
     mov r8, rax
-    mov rdi, [decimal_numbers + rdx] ; remainder of division stored in rdx (intel docs)
-
-    push r8
-    push r9
-    call print_char
-    pop r9
-    pop r8
-
+    push rdx        ; remainder of division stored in rdx (intel docs)
     mov rdi, r8
-    jmp .loop
+    jmp .count_loop
+.print_loop:
+    cmp rsp, r10    ; check end of out number
+    je  .end
+    pop rdx
+    xor rdi, rdi
+    mov dil, byte [decimal_numbers + rdx]
+    call print_char
+    jmp .print_loop
 .end:
     ret
 
@@ -123,7 +125,7 @@ string_copy:
 global _start
 
 _start:
-    mov rdi, 0x255
+    mov rdi, 0x12d687
     call print_uint
     call print_newline
     call exit
