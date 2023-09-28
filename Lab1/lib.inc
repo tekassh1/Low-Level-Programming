@@ -73,22 +73,26 @@ print_uint:
     jmp .count_loop
 .end:
     mov rdi, rsp
+
+    push r10    
     call print_string
+    pop r10
+    
     mov rsp, r10   ; restore rsp value
     ret
 
 ; Выводит знаковое 8-байтовое число в десятичном формате 
 print_int:
     xor rax, rax
+    mov r8, rdi
     cmp rdi, 0
     jge .end
 .negative:
-    push rdi
     mov rdi, 0x2d
     call print_char
-    pop rdi
-    neg rdi
+    neg r8
 .end:
+    mov rdi, r8
     call print_uint
     ret
 
@@ -148,7 +152,14 @@ read_word:
     mov r9, rsi     
     dec r9          ; buf (size - 1) because of null terminator
 .skipping_loop:
+    push r8
+    push r9
+    push r10
     call read_char
+    pop r10
+    pop r9
+    pop r8
+
     cmp rax, 0x20
     je  .skipping_loop
     cmp rax, 0x9
@@ -156,7 +167,7 @@ read_word:
     cmp rax, 0xA
     je  .skipping_loop
 .main_loop:
-    cmp rax, 0x20   ; if whitespace character after word, exit
+    cmp rax, 0x20   ; if "whitespace" characters after word, exit
     je  .success
     cmp rax, 0x9
     je  .success
@@ -169,7 +180,15 @@ read_word:
     jg  .err
     mov [r8 + r10], rax
     inc r10
+
+    push r8
+    push r9
+    push r10
     call read_char
+    pop r10
+    pop r9
+    pop r8
+
     jmp .main_loop
 .success:
     cmp r10, 0
@@ -194,6 +213,7 @@ parse_uint:
     xor rax, rax
     xor rdx, rdx
     xor r9, r9
+    xor r8, r8
     mov r8, 10
 .loop:
     cmp byte [rdi+rdx], 0
@@ -221,14 +241,25 @@ parse_uint:
 ; rdx = 0 если число прочитать не удалось
 parse_int:
     xor rax, rax
-    mov r8, rdi
     cmp byte [rdi], '-'
     je .neg
+
+    push rdi
     call parse_uint
+    pop rdi
+
+    xor r8, r8
+    mov r8, rdi
     jmp .end
 .neg:
     lea rdi, [rdi+1]
+
+    push r8
+    push rdi
     call parse_uint
+    pop rdi
+    pop r8
+
     cmp rdx, 0
     je .end
     inc rdx
@@ -241,9 +272,17 @@ parse_int:
 ; Возвращает длину строки если она умещается в буфер, иначе 0
 string_copy:
     xor rax, rax
+    
+    push rdx
+    push rdi
+    push rsi
+    call string_length
+    pop rsi
+    pop rdi
+    pop rdx
+    
     xor r8, r8
     xor r9, r9
-    call string_length
     dec rdx
     cmp rax, rdx
     jg  .err
