@@ -89,7 +89,11 @@ print_int:
     jge .end
 .negative:
     mov rdi, 0x2d
+
+    push r8
     call print_char
+    pop r8
+    
     neg r8
 .end:
     mov rdi, r8

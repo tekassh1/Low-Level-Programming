@@ -1,6 +1,6 @@
 section .data
 
-string: db "-12345234121"
+string: db "-123123123"
 
 section .text
  
@@ -93,7 +93,9 @@ print_int:
     jge .end
 .negative:
     mov rdi, 0x2d
+    push r8
     call print_char
+    pop r8
     neg r8
 .end:
     mov rdi, r8
@@ -243,6 +245,7 @@ parse_uint:
 ; Если есть знак, пробелы между ним и числом не разрешены.
 ; Возвращает в rax: число, rdx : его длину в символах (включая знак, если он был) 
 ; rdx = 0 если число прочитать не удалось
+global parse_int
 parse_int:
     xor rax, rax
     cmp byte [rdi], '-'
@@ -306,13 +309,13 @@ string_copy:
     mov rax, 0
 .end:
     ret
-
 global _start
 
 _start:
     mov rdi, string
     call parse_int
-    
-    mov rdi, rax
+
+    mov r8, 1
+
     call print_int
     call exit
