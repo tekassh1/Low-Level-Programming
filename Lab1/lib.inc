@@ -1,8 +1,10 @@
 section .text
 
+%define EXIT_SYSCALL 60
+
 ; Takes a return code and terminates the current process
 exit:
-    mov rax, 60
+    mov rax, EXIT_SYSCALL
     syscall
 
 ; Takes a pointer to a null-terminated string and returns its length
@@ -18,7 +20,6 @@ string_length:
 
 ; Takes a pointer to a null-terminated string and prints it to stdout
 print_string:
-    xor rax, rax
     push rdi
     call string_length
     pop rsi             ; pointer to the string start
@@ -36,15 +37,13 @@ print_char:
     mov rdi, 1      ; file descriptor (1 - stdout)
     mov rdx, 1      ; amount of bytes
     syscall
-    pop rdi
+    add rsp, 8
     ret
 
 ; Translates a string (prints a character with code 0xA)
 print_newline:
-    xor rax, rax
-    mov rdi, 10
-    call print_char
-    ret
+    mov rdi, '\n'
+    jmp print_char
 
 ; Prints an unsigned 8-byte number in decimal format
 ; Tip: Allocate space on the stack and store division results there
@@ -62,15 +61,13 @@ print_uint:
     xor rdx, rdx    ; div divides RAX:RDX pair
     div r9
     mov r8, rax     ; storing the remainder
-    mov rax, rdx    ; getting the ASCII code of the digit
-    add rax, '0'
+    add rdx, '0'    ; getting the ASCII code of the digit
     dec rsp         ; allocating space for the digit's ASCII code in the stack and moving it
-    mov [rsp], al
+    mov [rsp], dl
 
     mov rdi, r8     ; restore the remainder
-    cmp rdi, 0      ; if it's the end of the number, exit
-    je .end
-    jmp .count_loop
+    test rdi, rdi   ; if it's the end of the number, exit   
+    jnz .count_loop
 .end:
     mov rdi, rsp
 
@@ -83,43 +80,34 @@ print_uint:
 
 ; Prints a signed 8-byte number in decimal format
 print_int:
-    xor rax, rax
-    mov r8, rdi
     cmp rdi, 0      ; if zero, print
     jge .end
 .negative:
+    push rdi
     mov rdi, 0x2d   ; if negative, print '-'
-
-    push r8
     call print_char
-    pop r8
-
-    neg r8
+    pop rdi
+    neg rdi
 .end:
-    mov rdi, r8     ; print the positive part
-    call print_uint
-    ret
+    jmp print_uint ; print the positive part
 
 ; Takes two pointers to null-terminated strings and returns 1 if they are equal, 0 otherwise
 string_equals:
     xor rax, rax
     xor r8, r8
-    mov rax, 1          ; default value - equals
 .loop:
     mov dl, byte [rdi]  ; compare two bytes
     cmp dl, byte [rsi]
-    jne .not_equals
+    jne .end
 
-    cmp dl, 0x0         ; check null-terminator for both
-    jne .continue
-    cmp byte [rsi], 0x0
-    je  .end
+    test dl, dl         ; check null-terminator for both
+    je  .equals
 .continue:
     inc rdi
     inc rsi
     jmp .loop
-.not_equals:
-    mov rax, 0
+.equals:
+    inc rax
 .end:
     ret
 
@@ -133,10 +121,11 @@ read_char:
     syscall
 
     cmp rax, -1
-    je  .eof
+    je  .err
     pop rax         ; move the result character to rax
-    jmp .end
-.eof:
+    ret
+.err:
+    pop rax
     xor rax, rax
 .end:
     ret
@@ -146,63 +135,58 @@ read_char:
 ; Stops and returns 0 if the word is too big for the buffer
 ; On success, returns the buffer address in rax, word length in rdx, and adds a null terminator to the word
 read_word:
-    xor rax, rax
-    xor r10, r10            ; r10 stores the final word size
-    mov r8, rdi             ; r8 stores the buffer address
-    mov r9, rsi             ; r9 stores the buffer size
-    dec r9                  ; buffer (size - 1) because of the null terminator
-.skipping_loop:     
-    push r8                 ; saving volatile registers
-    push r9
-    push r10
-    call read_char
-    pop r10
-    pop r9
-    pop r8
+    push r14                 ; using callee-saved regs
+    push r13
+    push r12
 
-    cmp rax, 0x20           ; if "whitespace" characters before the word, skip
+    xor rax, rax
+    xor r14, r14             ; r14 stores the final word size
+    mov r12, rdi             ; r12 stores the buffer address
+    mov r13, rsi             ; r13 stores the buffer size
+    dec r13                  ; buffer (size - 1) because of the null terminator
+.skipping_loop:     
+    call read_char
+
+    cmp rax, ` `             ; if "whitespace" characters before the word, skip
     je  .skipping_loop
-    cmp rax, 0x9
+    cmp rax, `\t`
     je  .skipping_loop
-    cmp rax, 0xA
+    cmp rax, `\n`
     je  .skipping_loop
 .main_loop:
-    cmp rax, 0x20           ; if "whitespace" characters after the word, exit
+    cmp rax, ` `            ; if "whitespace" characters after the word, exit
     je  .success
-    cmp rax, 0x9
+    cmp rax, `\t`
     je  .success
-    cmp rax, 0xA
+    cmp rax, `\n`
     je  .success
-    cmp rax, 0
+    test rax, rax
     je .success
 
-    cmp r10, r9             ; if the current word size > buffer size -> error
+    cmp r14, r13             ; if the current word size > buffer size -> error
     jg  .err
-    mov [r8 + r10], rax     ; put the character in the next buffer position
-    inc r10
+    mov [r12 + r14], rax     ; put the character in the next buffer position
+    inc r14
 
-    push r8                 ; saving volatile registers
-    push r9
-    push r10
     call read_char
-    pop r10
-    pop r9
-    pop r8
-
     jmp .main_loop
 .success:
-    cmp r10, 0              ; if word size is 0 -> error
+    cmp r14, 0              ; if word size is 0 -> error
     je  .err
 
-    mov rdx, r10            ; one additional symbol for the null terminator
-    inc r10
-    mov byte [r8 + r10], 0x0
-    mov rax, r8
+    mov rdx, r14            ; one additional symbol for the null terminator
+    inc r14
+    mov byte [r12 + r14], 0x0
+    mov rax, r12
     jmp .end
 .err:
-    mov rdx, 0
-    mov rax, 0
+    xor rdx, rdx
+    xor rax, rax
 .end:
+    pop r12
+    pop r13
+    pop r14
+
     ret
 
 ; Takes a pointer to a string, attempts to read an unsigned number from its beginning
@@ -215,8 +199,6 @@ parse_uint:
     xor r8, r8
     mov r8, 10              ; variable to divide by
 .loop:
-    cmp byte [rdi+rdx], 0
-    je  .end
     cmp byte [rdi+rdx], '0' ; if not a number ASCII character, exit
     jl  .end
     cmp byte [rdi+rdx], '9'
@@ -241,26 +223,40 @@ parse_int:
     xor rax, rax
     cmp byte [rdi], '-'     ; if it starts with '-', the number is negative
     je .neg
+    cmp byte [rdi], '+'     ; if it starts with '+', the number is positive
+    jne .without_sign
+    jmp .signed
+.neg:
+    xor r9, r9              ; should we make number negative flag
+    inc r9
+.signed:
+    inc rdi                 ; get the address of the positive part of the number (excluding '-' / '+')
 
-    push rdi                ; parse a positive number
+    push r8                 ; saving caller-saved regs
+    push r9
+    push rdi
+    call parse_uint         ; parse non signed part of number
+    pop rdi
+    pop r9
+    pop r8
+   
+    cmp rdx, 0              ; if there was an error while parsing, exit
+    je .end
+
+    inc rdx                 ; parsed size = size + 1 because of the '-' character
+    cmp r9, 1               ; if should be negative -> neg instruction
+    je .do_neg
+    
+    ret
+.without_sign:
+    push rdi                ; parse an unsigned number
     call parse_uint
     pop rdi
 
     xor r8, r8
     mov r8, rdi
-    jmp .end
-.neg:
-    lea rdi, [rdi+1]        ; get the address of the positive part of the number (excluding '-')
-
-    push r8
-    push rdi
-    call parse_uint         ; parse a positive number
-    pop rdi
-    pop r8
-
-    cmp rdx, 0              ; if there was an error while parsing, exit
-    je .end
-    inc rdx                 ; parsed size = size + 1 because of the '-' character
+    ret
+.do_neg:
     neg rax
 .end:
     ret
