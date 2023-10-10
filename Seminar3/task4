@@ -1,4 +1,0 @@
-.PHONY: clean
-clean:
-    rm lib.o
-    rm main.o
