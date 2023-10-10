@@ -53,8 +53,10 @@ print_uint:
     xor r8, r8
     mov r8, rdi
     mov r9, 10
-    mov r10, rsp    ; save the default stack pointer to define the end of the output number
-    push 0x0        ; null-terminator
+    mov r10, rsp        ; save the default stack pointer to define the end of the output number
+    sub rsp, 32         ; allocation of space for symbols
+    dec r10             ; null terminator
+    mov byte [r10], 0x0
     
 .count_loop:
     mov rax, rdi
@@ -62,20 +64,17 @@ print_uint:
     div r9
     mov r8, rax     ; storing the remainder
     add rdx, '0'    ; getting the ASCII code of the digit
-    dec rsp         ; allocating space for the digit's ASCII code in the stack and moving it
-    mov [rsp], dl
+    dec r10         ; allocating space for the digit's ASCII code in the stack and moving it
+    mov [r10], dl
 
     mov rdi, r8     ; restore the remainder
     test rdi, rdi   ; if it's the end of the number, exit   
     jnz .count_loop
 .end:
-    mov rdi, rsp
-
-    push r10    
+    mov rdi, r10
     call print_string
-    pop r10
     
-    mov rsp, r10    ; restore the rsp value
+    add rsp, 32     ; restore the rsp value
     ret
 
 ; Prints a signed 8-byte number in decimal format
