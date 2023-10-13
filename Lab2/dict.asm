@@ -7,29 +7,23 @@ global find_word
 ; rsi - pointer to list next elem
 
 find_word:
-    mov r8, rdi
-    mov r9, rsi     
+    mov r12, rdi
+    mov r13, rsi     
 .loop:
-    cmp r9, 0
+    cmp r13, 0
     je .not_found
     
-    mov rdi, r8
-    lea r9, [r9 + qw]
-    mov rsi, r9
-
-    push r8
-    push r9
+    mov rdi, r12
+    lea r13, [r13 + qw]
+    mov rsi, r13
     call string_equals
-    pop r9
-    pop r8
-
     cmp rax, 0
     je .continue
-    lea rax, [r9 - qw]
+    lea rax, [r13 - qw]
     jmp .end
 .continue:
-    lea r9, [r9 - qw]
-    mov r9, [r9]
+    lea r13, [r13 - qw]
+    mov r13, [r13]
     jmp .loop
 .not_found:
     mov rax, 0
