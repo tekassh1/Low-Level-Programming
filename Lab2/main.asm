@@ -3,7 +3,7 @@
 %include "lib.inc"
 
 section .data
-key: db "second word", 0 ;402056 ;40202a ;402000
+key: db "first word", 0 ;402056 ;40202a ;402000
 section .text
 
 global _start

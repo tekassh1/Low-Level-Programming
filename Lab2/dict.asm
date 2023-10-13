@@ -14,15 +14,13 @@ find_word:
     je .not_found
     
     mov rdi, r12
-    lea r13, [r13 + qw]
-    mov rsi, r13
+    lea rsi, [r13 + qw]
     call string_equals
     cmp rax, 0
     je .continue
-    lea rax, [r13 - qw]
+    mov rax, r13
     jmp .end
 .continue:
-    lea r13, [r13 - qw]
     mov r13, [r13]
     jmp .loop
 .not_found:
