@@ -56,7 +56,7 @@ print_char:
 
 ; Translates a string (prints a character with code 0xA)
 print_newline:
-    mov rdi, '\n'
+    mov rdi, `\n`
     jmp print_char
 
 ; Prints an unsigned 8-byte number in decimal format
