@@ -3,12 +3,9 @@
 %define qw 8
 global find_word
 
-; rdi - pointer to null terminated string
-; rsi - pointer to list next elem
-
 find_word:
-    mov r12, rdi
-    mov r13, rsi     
+    mov r12, rdi  ; rdi - pointer to null terminated string
+    mov r13, rsi  ; rsi - pointer to list next elem
 .loop:
     cmp r13, 0
     je .not_found

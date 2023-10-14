@@ -143,6 +143,14 @@ read_char:
 .end:
     ret
 
+clear_stdin:
+    call read_char
+    cmp rax, 0xA
+    je .end
+    jmp clear_stdin
+.end:
+    ret
+
 ; Takes: buffer start address, buffer size
 ; Reads a word from stdin into the buffer, skipping leading whitespace characters (space 0x20, tab 0x9, newline 0xA)
 ; Stops and returns 0 if the word is too big for the buffer
@@ -157,7 +165,7 @@ read_word:
     mov r12, rdi             ; r12 stores the buffer address
     mov r13, rsi             ; r13 stores the buffer size
     dec r13                  ; buffer (size - 1) because of the null terminator
-.skipping_loop:     
+.skipping_loop:
     call read_char
 
     cmp rax, ` `             ; if "whitespace" characters before the word, skip
@@ -166,7 +174,10 @@ read_word:
     je  .skipping_loop
     cmp rax, `\n`
     je  .skipping_loop
+    jmp .check
 .main_loop:
+    call read_char
+    
     cmp rax, ` `            ; if "whitespace" characters after the word, exit
     je  .success
     cmp rax, `\t`
@@ -175,24 +186,25 @@ read_word:
     je  .success
     test rax, rax
     je .success
-
+.check:                 
+    mov [r12 + r14], rax     ; put the character in the next buffer position
+    inc r14                  ; 1
     cmp r14, r13             ; if the current word size > buffer size -> error
     jg  .err
-    mov [r12 + r14], rax     ; put the character in the next buffer position
-    inc r14
-
-    call read_char
     jmp .main_loop
 .success:
+    cmp r14, r13             ; if the current word size > buffer size -> error
+    jg  .err
     cmp r14, 0              ; if word size is 0 -> error
     je  .err
-
+    
     mov rdx, r14            ; one additional symbol for the null terminator
     inc r14
     mov byte [r12 + r14], 0x0
     mov rax, r12
     jmp .end
 .err:
+    call clear_stdin
     xor rdx, rdx
     xor rax, rax
 .end:
