@@ -1,8 +1,8 @@
 %include "colon.inc"
 
-section .data
+section .rodata
 
-colon "fifth", fifth_word
+colon "one two three four", fifth_word
 db "5th data", 0
 
 colon "fourth", fourth_word

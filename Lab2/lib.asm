@@ -9,7 +9,7 @@ global print_uint
 global print_int
 global string_equals
 global read_char
-global read_word
+global read_line
 global parse_uint
 global parse_int
 global string_copy
@@ -155,7 +155,7 @@ clear_stdin:
 ; Reads a word from stdin into the buffer, skipping leading whitespace characters (space 0x20, tab 0x9, newline 0xA)
 ; Stops and returns 0 if the word is too big for the buffer
 ; On success, returns the buffer address in rax, word length in rdx, and adds a null terminator to the word
-read_word:
+read_line:
     push r14                 ; using callee-saved regs
     push r13
     push r12
@@ -165,24 +165,10 @@ read_word:
     mov r12, rdi             ; r12 stores the buffer address
     mov r13, rsi             ; r13 stores the buffer size
     dec r13                  ; buffer (size - 1) because of the null terminator
-.skipping_loop:
-    call read_char
-
-    cmp rax, ` `             ; if "whitespace" characters before the word, skip
-    je  .skipping_loop
-    cmp rax, `\t`
-    je  .skipping_loop
-    cmp rax, `\n`
-    je  .skipping_loop
-    jmp .check
 .main_loop:
     call read_char
     
-    cmp rax, ` `            ; if "whitespace" characters after the word, exit
-    je  .success
-    cmp rax, `\t`
-    je  .success
-    cmp rax, `\n`
+    cmp rax, `\n`            ; if enter -> exit
     je  .success
     test rax, rax
     je .success
@@ -195,10 +181,10 @@ read_word:
 .success:
     cmp r14, r13             ; if the current word size > buffer size -> error
     jg  .err
-    cmp r14, 0              ; if word size is 0 -> error
+    cmp r14, 0               ; if word size is 0 -> error
     je  .err
     
-    mov rdx, r14            ; one additional symbol for the null terminator
+    mov rdx, r14             ; one additional symbol for the null terminator
     inc r14
     mov byte [r12 + r14], 0x0
     mov rax, r12

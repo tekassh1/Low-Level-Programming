@@ -7,13 +7,13 @@ find_word:
     mov r12, rdi  ; rdi - pointer to null terminated string
     mov r13, rsi  ; rsi - pointer to list next elem
 .loop:
-    cmp r13, 0
+    test r13, r13
     je .not_found
     
     mov rdi, r12
     lea rsi, [r13 + qw]
     call string_equals
-    cmp rax, 0
+    test rax, rax
     je .continue
     mov rax, r13
     jmp .end
@@ -21,6 +21,6 @@ find_word:
     mov r13, [r13]
     jmp .loop
 .not_found:
-    mov rax, 0
+    xor rax, rax
 .end:
     ret

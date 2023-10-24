@@ -6,25 +6,34 @@
 %define OVERFLOW_MSG_SIZE 50
 %define NOT_FOUND_MSG_SIZE 43
 
+%define STDERR 2
+%define WRITE_SYSCALL 1
 %define qw 8
 
 section .bss
 
 buffer: resb BUFFER_SIZE
 
-section .data
+section .rodata
 
 overflow_msg: db "The input key is too large! (max size - 255 symb)", 10, 0
 not_found_msg: db "The key you are looking for was not found!", 10, 0
 
 section .text
 
+error:
+    mov rax, WRITE_SYSCALL 
+    mov rdi, STDERR
+    syscall
+    mov rdi, 1
+    call exit
+
 global _start
 
 _start:
     mov rdi, buffer
     mov rsi, BUFFER_SIZE
-    call read_word
+    call read_line
     test rax, rax
     je .overflow
     
@@ -48,17 +57,13 @@ _start:
     
     jmp .end
 .overflow:
-    mov rax, 1
-    mov rdi, 2
     mov rsi, overflow_msg
     mov rdx, OVERFLOW_MSG_SIZE
-    syscall
-    jmp .end
+    call error
 .not_found:
-    mov rax, 1
-    mov rdi, 2
     mov rsi, not_found_msg
     mov rdx, NOT_FOUND_MSG_SIZE
-    syscall
+    call error
 .end:
+    mov rdi, 0
     call exit

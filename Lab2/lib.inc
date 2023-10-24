@@ -7,7 +7,7 @@ extern print_uint
 extern print_int
 extern string_equals
 extern read_char
-extern read_word
+extern read_line
 extern parse_uint
 extern parse_int
 extern string_copy
