@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/mnt/d/Other/ITMO/2nd year/PL/seminar4/task4",
+            "binaryPath": "/mnt/d/Other/ITMO/2nd year/PL/seminar4/task4/main",
+            "binaryArgs": []
+        }
+    ]
+}
