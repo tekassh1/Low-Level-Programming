@@ -1,0 +1,43 @@
+{
+    "files.associations": {
+        "console_io.h": "c",
+        "enums.h": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c",
+        "inttypes.h": "c",
+        "file_io.h": "c",
+        "rotation.h": "c",
+        "image.h": "c",
+        "stdio.h": "c",
+        "cinttypes": "c",
+        "cstdint": "c",
+        "limits.h": "c",
+        "stdint.h": "c",
+        "serialization.h": "c",
+        "stddef.h": "c",
+        "crtdbg.h": "c",
+        "stdarg.h": "c"
+    },
+    "cmake.debugConfig": {
+        "args": [
+            "input.bmp", 
+            "out.bmp",
+            "-90"
+        ]
+        // "args": [
+        //     "out.bmp",
+        //     "out2.bmp",
+        //     "90"
+        // ]
+        // "args": [
+        //     "out2.bmp", 
+        //     "out3.bmp",
+        //     "90"
+        // ]
+        // "args": [
+        //     "out3.bmp", 
+        //     "out4.bmp",
+        //     "90"
+        // ]
+     },
+}
