@@ -13,7 +13,6 @@ section .data
 
 section .text
 global _start
-
 ; use exit system call to shut down correctly
 exit:
     mov  rax, 60
