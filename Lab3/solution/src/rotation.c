@@ -1,3 +1,10 @@
+#define ROATATE(source_pix, result_img)                                             \
+    for (size_t i = 0; i < (result_img) -> height; i++) {                           \
+        for (size_t j = 0; j < (result_img) -> width; j++) {                        \
+            (result_img) -> data[i * (result_img) -> width + j] = (source_pix);     \
+        }                                                                           \
+    }                                                                                                                                     \
+
 #include "../include/image.h"
 
 #include <stdbool.h>
@@ -12,51 +19,36 @@ static image* init_image(uint64_t width, uint64_t height, bool reverse_rotation)
     res->data = malloc(sizeof(pixel) * width * height);
     return res;
 }
-    
+
 image* rotate_90(image* source) {
     image* result = init_image(source->width, source->height, true);
 
-    for (size_t i = 0; i < result->height; i++) {
-        for (size_t j = 0; j < result->width; j++) {
-            result->data[i * result->width + j]
-                = source->data[source->width * (j + 1) - 1 - i];
-        }
-    }
+    ROATATE(source->data[source->width * (j + 1) - 1 - i], result);
+ 
+
     return result;
 }
 
 image* rotate_90_reverse(image* source) {
     image* result = init_image(source->width, source->height, true);
 
-    for (size_t i = 0; i < result->height; i++) {
-        for (size_t j = 0; j < result->width; j++) {
-            result->data[i * result->width + j]
-                = source->data[source->width * (source->height - 1 - j) + i];
-        }
-    }
+    ROATATE(source->data[source->width * (source->height - 1 - j) + i], result);
+
     return result;
 }
 
 image* rotate_180(image* source) {
     image* result = init_image(source->width, source->height, false);
 
-    for (size_t i = 0; i < result->height; i++) {
-        for (size_t j = 0; j < result->width; j++) {
-            result->data[i * result->width + j]
-                = source->data[source->width * (source->height - 1 - i) + (source->width - 1 - j)];
-        }
-    }
+    ROATATE(source->data[source->width * (source->height - 1 - i) + (source->width - 1 - j)], result);
+    
     return result;
 }
 
 image* copy_image(image* source) {
     image* result = init_image(source->width, source->height, false);
 
-    for (size_t i = 0; i < result->height; i++) {
-        for (size_t j = 0; j < result->width; j++) {
-            result->data[i * result->width + j]
-                = source->data[i * result->width + j];
-        }
-    }
+    ROATATE(source->data[i * result->width + j], result);
+
     return result;
 }

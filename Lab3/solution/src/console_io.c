@@ -6,11 +6,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define ARRAY_SIZE(x) ((sizeof(x))/(sizeof((x)[0])))
+
 static int16_t rotation_allowed_angles[7] = {0, 90, -90, 180, -180, 270, -270};
 static char forbidden_symbols[8] = {'\\', '/', ':', '*', '?', '<', '>', '|'};
 
 static bool is_forbidden(char symb) {
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(forbidden_symbols); i++) {
         if (forbidden_symbols[i] == symb) return true;
     }
     return false;
@@ -24,7 +26,7 @@ validate_filename_status check_valid_filename(char* filename) {
 }
 
 static bool angle_is_allowed(int16_t angle) {
-    for (size_t i = 0; i < 7; i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(rotation_allowed_angles); i++) {
         if (rotation_allowed_angles[i] == angle) return true;
     }
     return false;

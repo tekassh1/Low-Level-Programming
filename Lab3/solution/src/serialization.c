@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define calc_padding(width) (4 - (((width) * PIXEL_SIZE) % 4))
+
 #define BMP_TYPE 0x4D42
 #define BI_HEADER_SIZE 54
 #define DIB_HEADER_SIZE 40
@@ -16,13 +18,18 @@
 #define BI_YPELS_PER_METER 2835
 
 // static void print_bmp_header_fields(struct bmp_header* header);
-static uint8_t calc_padding(uint64_t width) { return 4 - ((width * PIXEL_SIZE) % 4);}
+// static uint8_t calc_padding(uint64_t width) { return 4 - ((width * PIXEL_SIZE) % 4);}
 static bmp_header create_bmp_header(image const* img);
 
 read_bmp_status from_bmp(FILE* in, image** const img) {
     bmp_header header;
     
     (*img) = malloc(sizeof(image));
+    if (*img == NULL) {
+        free(img);
+        return READ_BMP_NO_ENOUGH_MEMORY;
+    }
+
 
     if (fread(&header, sizeof(bmp_header), 1, in) < 1) 
         return READ_BMP_INVALID_HEADER;
@@ -32,7 +39,7 @@ read_bmp_status from_bmp(FILE* in, image** const img) {
     (*img)->width = (uint64_t) header.biWidth;
     (*img)->height = (uint64_t) header.biHeight;
 
-    (*img)->data = malloc(sizeof(pixel) * (*img)->width * (*img)->height);
+    (*img)->data = malloc(PIXEL_SIZE * (*img)->width * (*img)->height);
     if ((*img)->data == NULL) {
         free((*img)->data);
         return READ_BMP_NO_ENOUGH_MEMORY;
@@ -46,7 +53,8 @@ read_bmp_status from_bmp(FILE* in, image** const img) {
     for (size_t i = 0; i < (*img)->height; i++) {
         for (size_t j = 0; j < (*img)->width; j++) {
             uint8_t colours[PIXEL_SIZE] = {0};
-            fread(&colours, sizeof(uint8_t), PIXEL_SIZE, in);
+            if (fread(&colours, sizeof(uint8_t), PIXEL_SIZE, in) < PIXEL_SIZE)
+                return READ_BMP_INVALID_BITS;
 
             (*img)->data[curr_pixel++] = (pixel) {
                 .b = colours[0], 
