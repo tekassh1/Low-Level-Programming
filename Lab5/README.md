@@ -10,7 +10,7 @@ In this assignment, you are required to implement a sepia filter in both C and A
 - You need to write a test that compares the execution time of both implementations.
 - For image processing, use the BMP file manipulation library that you implemented in the third lab assignment.
 
-### Project result
+### Perfomance result
 ```
 Realization Iters Result 
 
