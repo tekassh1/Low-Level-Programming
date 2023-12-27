@@ -2,7 +2,7 @@
 ---
 Project: assembler dictionary
 
-## Связный список
+## Linked List
 
 A linked list &mdash; is a data structure. An empty list is a null pointer; a non-empty list is a pointer to the first element of the list.
 Each element contains data and a pointer to the next element.
