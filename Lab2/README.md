@@ -1,23 +1,15 @@
 # Assignment №2:  Dictionary in assembly
 ---
-Лабораторная работа №2: словарь на assembler
-
-
-# Подготовка
-
-* Прочитайте первые главы 3,4,5 "Low-level programming: C, assembly and program execution". 
-
-На защите мы можем обсуждать цикл компиляции, роль компоновщика, препроцессора, устройство виртуальной памяти и связь между секциями, сегментами, регионами памяти. Также можем поговорить про кольца защиты и привилегированный режим.
-
+Project: assembler dictionary
 
 ## Связный список
 
-Связный список &mdash; это структура данных. Пустой список это нулевой указатель; непустой список это указатель на первый элемент списка.
-Каждый элемент содержит данные и указатель на следующий элемент.
+A linked list &mdash; is a data structure. An empty list is a null pointer; a non-empty list is a pointer to the first element of the list.
+Each element contains data and a pointer to the next element.
 
 
-Вот пример связного списка (100, 200, 300). 
-Его начало можно найти по указателю `x1`:
+Here is an example of a linked list (100, 200, 300). 
+Its beginning can be found by the `x1` pointer:
 
 ```nasm
 section .data
@@ -35,23 +27,23 @@ dq 0
 dq 300
 ```
  
-Часто есть необходимость хранить набор данных в каком-то контейнере. С контейнером мы производим операции доступа к его элементам, добавления элемента в начало или конец, или на произвольную позицию, сортировки.
+Often there is a need to store a set of data in some container. With a container, we perform operations to access its elements, add an element to the beginning or end, or to an arbitrary position, and sort it.
 
-Разные контейнеры делают одни из этих операций лёгкими и быстрыми, а другие &mdash; медленными.
-Например, в массив неудобно добавлять элементы, но можно быстро обратиться к уже сущестующему по индексу.
-В связный список, наоборот, удобно добавлять элементы в любое место, но доступ по индексу сложнее &mdash; нужно просмотреть весь список с самого начала.
+Different containers make some of these operations easy and fast, and others &mdash; slow.
+For example, it is inconvenient to add elements to an array, but you can quickly refer to an already existing one by index.
+In a linked list, on the contrary, it is convenient to add elements anywhere, but accessing by index is more difficult &mdash; you have to look through the whole list from the beginning.
 
-## Задание
+## Task
 
-Необходимо реализовать на ассемблере словарь в виде связного списка.
-Каждое вхождение содержит адрес следующей пары в словаре, ключ и значение. 
-Ключи и значения &mdash; адреса нуль-терминированых строк.
+You need to implement a dictionary in assembly language in the form of a linked list.
+Each occurrence contains the address of the next pair in the dictionary, a key and a value. 
+Keys and values &mdash; addresses of null-terminated strings.
 
-Словарь задаётся статически, каждый новый элемент добавляется в его начало. 
-С помощью макросов мы автоматизируем этот процесс так, что указав с помощью новой конструкции языка новый элемент он автоматически добавится в начало списка, и указатель на начало списка обновится. Таким образом нам не нужно будет вручную поддерживать правильность связей в списке. 
+The dictionary is set statically, each new element is added to the beginning of the dictionary. 
+With the help of macros we automate this process so that by specifying a new element with a new language construct it will be automatically added to the beginning of the list, and the pointer to the beginning of the list will be updated. This way we don't have to manually maintain the correctness of the links in the list. 
 
-Создайте макрос `colon` с двумя аргументами: ключом и меткой, которая будет сопоставлена значению.
-Эта метка не может быть сгенерирована из самого значения, так как в строчке могут быть символы, которые не могут встречаться в метках, например, арифметические знаки, знаки пунктуации и т.д. После использования такого макроса можно напрямую указать значение, сопоставляемое ключу. Пример использования:
+Create a `colon` macro with two arguments: a key and a label that will be mapped to a value.
+This label cannot be generated from the value itself, as there may be characters in the string that cannot occur in labels, such as arithmetic characters, punctuation marks, etc. After using such a macro, you can directly specify the value to be mapped to the key. Example usage:
 
 ```nasm
 section .data
@@ -66,8 +58,7 @@ colon "first word", first_word
 db "first word explanation", 0 
 ```
 
-
-В реализации необходимо предоставить следующие файлы:
+The following files need to be provided in the implementation:
 
 - `lib.asm`
 - `lib.inc`
@@ -77,31 +68,40 @@ db "first word explanation", 0
 - `words.inc`
 - `main.asm`
 
-### Указания
+### Instructions
 
-- Оформите функции, которые вы реализовали в первой лабораторной работе, в виде отдельной библиотеки `lib.o`.
 
-  Не забудьте все названия функций сделать глобальными метками и перечислить их в `lib.inc`.
+- Format the functions you implemented in the first lab as a separate `lib.o` library.
 
-- Создайте файл `colon.inc` и определите в нём макрос для создания слов в словаре. 
 
-  Макрос принимает два параметра:
-    - Ключ (в кавычках)
-    - Имя метки, по которой будет находиться значение.
+  Remember to make all function names globally labeled and list them in `lib.inc`.
 
-- В файлах `dict.asm` и `dict.inc` создать функцию `find_word`. Она принимает два аргумента:
-  - Указатель на нуль-терминированную строку.
-  - Указатель на начало словаря.
 
-  `find_word` пройдёт по всему словарю в поисках подходящего ключа. Если подходящее вхождение найдено, вернёт адрес *начала вхождения в   словарь* (не значения), иначе вернёт 0. 
+- Create a file `colon.inc` and define in it a macro for creating words in the dictionary. 
 
-- Файл `words.inc` должен хранить слова, определённые с помощью макроса  `colon`. Включите этот файл в `main.asm`.
-- В `main.asm` определите функцию `_start`, которая:
+
+  The macro takes two parameters:
+    - Key (in quotes)
+    - The name of the label by which the value will be located.
+
+
+- In the `dict.asm` and `dict.inc` files, create the `find_word` function. It takes two arguments:
+  - A pointer to a null-terminated string.
+  - A pointer to the beginning of the dictionary.
+
+
+  `find_word` will traverse the entire dictionary looking for a matching key. If a matching occurrence is found, it will return the address of the *beginning of the dictionary* (not the value), otherwise it will return 0. 
+
+
+- The `words.inc` file should store the words defined with the `colon` macro. Include this file in `main.asm`.
+- In `main.asm`, define a function `_start` that:
   
-  - Читает строку размером не более 255 символов в буфер с `stdin`.
-  - Пытается найти вхождение в словаре; если оно найдено, распечатывает в `stdout` значение по этому ключу. Иначе выдает сообщение об ошибке.
+  - Reads a string of 255 characters or less into a buffer with `stdin`.
+  - Tries to find a occurrence in the dictionary; if found, prints to `stdout` the value for that key. Otherwise it prints an error message.
 
-  Не забудьте, что сообщения об ошибках нужно выводить в `stderr`.
 
-- Обязательно предоставьте `Makefile`.
-- Напишите тесты для вашей реализации словаря. Тесты должны запускаться целью `test` мейкфайла.
+  Remember to print error messages to `stderr`.
+
+
+- Be sure to provide a `Makefile`.
+- Write tests for your dictionary implementation. The tests should be run by the `test` target of the `makefile`.
