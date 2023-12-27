@@ -1,29 +1,27 @@
 # Assignment: Image rotation
 
-Лабораторная работа: Поворот картинки
+Project: Image rotation
 
-# Задание
+# Task
 
-
-- Необходимо реализовать поворот изображения в формате BMP на заданный угол по 
-  часовой стрелке. Формат использования такой:
-
+- It is necessary to implement rotation of an image in BMP format by a specified angle in a clockwise direction. 
+  clockwise. The format to use is as follows:
+  
 ```
 ./image-transformer <source-image> <transformed-image> <angle>
 ```
 
-Угол может принимать значения строго из списка: 0, 90, -90, 180, -180, 270, -270
+The angle can take values strictly from the list: 0, 90, -90, 180, -180, 270, -270
 
-- Архитектура приложения описана в последующих разделах. 
-- Код размещается в директории `solution/src`, заголовочные файлы ищутся в `solution/include`.
+- The architecture of the application is described in the following sections. 
+- The code is placed in the `solution/src` directory, header files are found in `solution/include`.
 
-# Структура BMP файла
+# BMP file structure
 
-BMP файл состоит из заголовка и растрового массива.
-Заголовок задаётся следующей структурой (обратите внимание на атрибут `packed`):
+A BMP file consists of a header and a bitmap array.
+The header is specified by the following structure (note the `packed` attribute):
 
 ```c
-// Описание для gcc и clang
 #include  <stdint.h>
 struct bmp_header __attribute__((packed))
 {
@@ -45,8 +43,8 @@ struct bmp_header __attribute__((packed))
 };
 ```
 
-Сразу после него (всегда ли?) идёт растровый массив, в котором последовательно хранятся пиксели по строчкам.
-Каждый пиксель задаётся структурой размером 3 байта:
+Immediately after it (is it always?) comes a bitmap array that stores pixels in rows sequentially.
+Each pixel is defined by a structure of 3 bytes:
 
 ```c
    struct pixel { uint8_t b, g, r; };
@@ -54,76 +52,18 @@ struct bmp_header __attribute__((packed))
 
 ## Padding
 
-Если ширина изображения в байтах кратна четырём, то строчки идут одна за другой без пропусков.
-Если ширина не кратна четырём, то она дополняется мусорными байтами до ближайшего числа, кратного четырём.
-Эти байты называются *padding*.
+If the image width in bytes is a multiple of four, the lines follow each other without skipping.
+If the width is not a multiple of four, it is supplemented with garbage bytes to the nearest multiple of four.
+These bytes are called *padding*.
 
-Пример:
+# About the architecture
 
-1. Изображение имеет ширину 12 пикселей = 12 * 3 байт = 36 байт. Ширина кратна четырём, каждая следующая строчка начинается сразу после предыдущей.
-2. Изображение имеет ширину 5 пикселей. 5 * 3 = 15 байт, ближайшее число кратное четырём (округление вверх) это 16. После каждой строчки будет отступ в 16-15 = 1 байт перед началом следующей.
+The program is divided into modules; each module is a `.c` file that becomes a file with the extension `.o`.
 
-Обратите внимание: отступы в *байтах*, не в пикселях.
+## Part 1: Internal Format
 
-
-
-# Пользователям компилятора от Microsoft 
-
-Вам придётся задать структуру по-другому, без атрибута `packed`:
-
-```c
-#include  <stdint.h>
-#pragma pack(push, 1)
-struct bmp_header 
-{
-        uint16_t bfType;
-        uint32_t  bfileSize;
-        uint32_t bfReserved;
-        uint32_t bOffBits;
-        uint32_t biSize;
-        uint32_t biWidth;
-        uint32_t  biHeight;
-        uint16_t  biPlanes;
-        uint16_t biBitCount;
-        uint32_t biCompression;
-        uint32_t biSizeImage;
-        uint32_t biXPelsPerMeter;
-        uint32_t biYPelsPerMeter;
-        uint32_t biClrUsed;
-        uint32_t  biClrImportant;
-};
-#pragma pack(pop)
-```
-
-Объяснение этого прочтите находится на страницах 235&ndash;239 учебника. 
-
-
-# Об архитектуре
-
-Программа разделена на модули; каждый модуль это `.c` файл, который становится файлом с расширением `.o`.
-
-Продуманная архитектура приложения в каждом конкретном модуле минимизирует
-знания о других модулях по следующим причинам:
-
-- Когда программист работает над одним модулем (разрабатывает, модифицирует,
-  ищет ошибки), ему проще не держать в голове знания про всю остальную
-  программу. Скрытие информации про другие модули позволяет ему не брать в 
-  голову детали их внутреннего устройства.
-- Пусть модуль A не использует определения из модуля B, но имеет к ним доступ.
-  Разумеется, можно как угодно менять B и это не скажется на A. 
-  Однако есть шанс, что автор программы или кто-то из будущих соавторов может
-  использовать в модуле A определения из B &mdash; ведь к ним есть доступ.  Это
-  установит жёсткую связь между A и B, и будет нельзя больше свободно менять B не
-  влияя на A. Программы являются сложными системами, и мы хотим иметь минимум
-  связей между их элементами, иначе модификация (и исправление ошибок) будут
-  требовать постоянной модификации не одной, а многих частей программы.
-
-В нашем случае в программе разумно выделить несколько частей.
-
-## Часть 1: Внутренний формат
-
-Описание внутреннего представления картинки `struct image`, очищенное от
-деталей формата, и функции для работы с ним: создание, деинициализация и т.д.
+A description of the internal representation of the `struct image`, cleaned up from the
+format details, and functions to work with it: create, deinitialize, etc.
 
    ```c
    struct image {
@@ -132,22 +72,22 @@ struct bmp_header
    };
    ```
   
-  Эта часть программы не должна знать ни про входные форматы, ни про трансформации.
+  This part of the program doesn't need to know about input formats or transforms
 
-## Часть 2: Входные форматы
+## Part 2: Input Formats
 
-Каждый входной формат описывается в отдельном модуле; они предоставляют функции
-для считывания файлов разных форматов в `struct image` и для записи на диск в
-тех же форматах.
+Each input format is described in a separate module; they provide functions
+to read files of different formats into a `struct image` and to write to disk in the
+the same formats.
 
-Эти модули знают про модуль, описывающий `struct image`, но ничего не знают про
-трансформации. Поэтому можно будет добавлять новые трансформации не переписывая
-код для входных форматов.
+These modules know about the module describing `struct image`, but know nothing about the
+transformations. Therefore, it will be possible to add new transformations without rewriting the
+the code for the input formats.
 
-  Как только мы считали изображение во внутренний формат, мы должны забыть, из
-какого формата оно было считано!  Именно поэтому в `struct image` оставлен
-только самый минимум деталей изображения (размеры), и никаких частей
-bmp-заголовка.  Для BMP начать можно с:
+  Once we have read an image into an internal format, we must forget from
+which format it was read from!  That's why in `struct image` only the bare minimum of image details (dimensions) is left.
+only the bare minimum of image details (dimensions), and no parts of the
+of the bmp header.  For BMP, you can start with:
 
 ```c
 /*  deserializer   */
@@ -172,50 +112,49 @@ enum write_status to_bmp( FILE* out, struct image const* img );
 
 ```
 
-Функции `from_bmp` и `to_bmp` принимают уже открытый файл, что позволяет
-им работать с заранее открытыми файлами `stdin`, `stdout`, `stderr`.
+The `from_bmp` and `to_bmp` functions accept an already opened file, which allows them to work with pre-opened files `stdin`, `stdout`, `stderr`.
+They can work with pre-opened files `stdin`, `stdout`, `stderr`.
 
-Функции `from_bmp` и `to_bmp` не должны ни открывать, ни закрывать файлы.
-Для ошибок открытия/закрытия, возможно, вам захочется ввести отдельные типы
-перечислений.
+The `from_bmp` and `to_bmp` functions should neither open nor close files.
+For open/close errors, you may want to introduce separate types of
+enumerations.
 
-Как только мы считали изображение во внутренний формат, мы должны забыть, из
-какого формата оно было считано! Именно поэтому в `struct image` оставлен
-только самый минимум деталей изображения (размеры), и никаких частей
-bmp-заголовка.
+Once we have read an image into an internal format, we should forget from
+which format it was read from! This is why `struct image` leaves out
+only the bare minimum of image details (dimensions), and no parts of the
+of the bmp header.
 
-Вам также потребуются функции, аналогичные `from_bmp` и `to_bmp`, которые
-будут принимать имена файлов и заниматься корректным открытием (`fopen`) и
-закрытием (`fclose`) файлов; на открытых файлах они могут запускать `from_bmp`
-и `to_bmp`.
+You will also need functions similar to `from_bmp` and `to_bmp`, which will take file names and deal with corrections.
+will take file names and handle the correct opening (`fopen`) and
+close (`fclose`) files; on open files they can run `from_bmp`
+and `to_bmp`.
 
-Имеет смысл разделять открытие/закрытие файлов и работу с ними. Уже
-открытие и закрытие могут сопровождаться ошибками (см. `man fopen` и 
-`man fclose`) и хочется отделить обработку ошибок открытия/закрытия и
-обработку ошибок чтения/записи.
+It makes sense to separate file opening/closing and file handling. Already
+opening and closing may be accompanied by errors (see `man fopen` and 
+`man fclose`) and we would like to separate the processing of opening/closing errors from the processing of reading/writing errors.
+processing of read/write errors.
 
 
+## Part 3: Transformations
 
-## Часть 3: Трансформации
+Each transformation is described in a separate module. These modules know about
+module describing `struct image`, but know nothing about input formats.
+Therefore, it will be possible to add new input formats without rewriting the code for the
+transformations. Without any additional effort, we will be able, by describing the input
+format and immediately support all transformations on it.
 
-Каждая трансформация описывается в отдельном модуле. Эти модули знают про
-модуль, описывающий `struct image`, но ничего не знают про входные форматы.
-Поэтому можно будет добавлять новые входные форматы не переписывая код для
-трансформаций. Без дополнительных усилий мы получим возможность, описав входной
-формат, сразу же поддержать все трансформации над ним.
-
-Вам потребуется функция для поворота картинки в её внутреннем представлении:
+You will need a function to rotate a picture in its internal representation:
 
    ```c
-   /* создаёт копию изображения, которая повёрнута на 90 градусов */
+   /* creates a copy of the image that is rotated 90 degrees */
    struct image rotate( struct image const source );
    ```
 
-## Часть 4: всё остальное
+## Part 4: Everything else
 
-Остальная часть программы может быть организована любым осмысленным способом. Возможно, вам захочется написать небольшую библиотеку для ввода-вывода, работы со строками и т.д.
+The rest of the program can be organized in any meaningful way. You may want to write a small library for I/O, string handling, etc.
 
-Приветствуется разумное создание новых модулей и введение дополнительных функций для удобства, где это необходимо.
+You are encouraged to sensibly create new modules and introduce additional functions for convenience where needed.
 
-Дополнительные функции, которые вы ввели для удобства, но которые не относятся по смыслу ни к одному из этих модулей, можно выделить
-в отдельный модуль. Часто его называют `util.c` или как-то похоже.
+Additional functions that you have introduced for convenience, but which do not make sense in any of these modules, can be separated out
+into a separate module. This is often called `util.c` or something similar.
