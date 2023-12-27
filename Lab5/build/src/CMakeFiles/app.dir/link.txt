@@ -1,0 +1,1 @@
+/usr/bin/gcc -g -rdynamic CMakeFiles/app.dir/main.c.o -o app  libimage_lib.a libfilter_lib.a libutil_lib.a libasm_lib.a 

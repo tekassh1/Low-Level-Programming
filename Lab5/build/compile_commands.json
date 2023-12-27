@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/image_lib.dir/image/bmp.c.o -c /home/tekashi/Lab5/src/image/bmp.c",
+  "file": "/home/tekashi/Lab5/src/image/bmp.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/image_lib.dir/image/file_io.c.o -c /home/tekashi/Lab5/src/image/file_io.c",
+  "file": "/home/tekashi/Lab5/src/image/file_io.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/image_lib.dir/image/image.c.o -c /home/tekashi/Lab5/src/image/image.c",
+  "file": "/home/tekashi/Lab5/src/image/image.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/filter_lib.dir/filter/filter.c.o -c /home/tekashi/Lab5/src/filter/filter.c",
+  "file": "/home/tekashi/Lab5/src/filter/filter.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/util_lib.dir/util/enum_naming.c.o -c /home/tekashi/Lab5/src/util/enum_naming.c",
+  "file": "/home/tekashi/Lab5/src/util/enum_naming.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/util_lib.dir/util/util.c.o -c /home/tekashi/Lab5/src/util/util.c",
+  "file": "/home/tekashi/Lab5/src/util/util.c"
+},
+{
+  "directory": "/home/tekashi/Lab5/build/src",
+  "command": "/usr/bin/gcc  -I/home/tekashi/Lab5/include -g -o CMakeFiles/app.dir/main.c.o -c /home/tekashi/Lab5/src/main.c",
+  "file": "/home/tekashi/Lab5/src/main.c"
+}
+]

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Linux-g++"
+	BuildStamp="20231218-0840-Experimental"
+	Name="TekashiPC"
+	Generator="ctest-3.22.1"
+	CompilerName="/usr/bin/g++"
+	CompilerVersion=""
+	OSName="Linux"
+	Hostname="TekashiPC"
+	OSRelease="5.15.133.1-microsoft-standard-WSL2"
+	OSVersion="#1 SMP Thu Oct 5 21:02:42 UTC 2023"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="140"
+	ProcessorCacheSize="8192"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="4"
+	TotalVirtualMemory="2048"
+	TotalPhysicalMemory="7835"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="3110.67"
+	>
+	<Testing>
+		<StartDateTime>Dec 18 23:07 MSK</StartDateTime>
+		<StartTestTime>1702930060</StartTestTime>
+		<TestList/>
+		<EndDateTime>Dec 18 23:07 MSK</EndDateTime>
+		<EndTestTime>1702930060</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

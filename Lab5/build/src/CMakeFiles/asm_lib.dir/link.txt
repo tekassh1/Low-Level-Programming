@@ -1,0 +1,2 @@
+/usr/bin/ar cr libasm_lib.a CMakeFiles/asm_lib.dir/asm/filter.asm.o 
+/usr/bin/ranlib libasm_lib.a
