@@ -1,6 +1,6 @@
 # Assignment: Sepia filter in C and Assembly
 
-Lab Assignment: Sepia filter in C and Assembly using SIMD instructions
+Project: Sepia filter in C and Assembly using SIMD instructions
 
 ## Task
 
