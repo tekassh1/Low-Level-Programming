@@ -84,7 +84,7 @@ inline block_capacity capacity_from_size( block_size sz ) {
 - The header stores the capacity of the block, not its total size together with the header.
 - You cannot use `sizeof( struct block_header )` because the structure size will be larger due to alignment. On the author's machine, for example, the structure size was 24, and `offsetof( struct block_header, contents ) == 17`, which is correct.
 
-## Algorithm `malloc(n)`.
+## `malloc(n)` algorithm.
 
 - We search through the blocks until we find a "good" block.
 A good block &mdash; one that can hold `n` bytes.
@@ -92,7 +92,7 @@ A good block &mdash; one that can hold `n` bytes.
 - A good block may be too big, say we need to allocate 20 bytes and its size is 30 megabytes. Then we split the block into two parts: the first block will have `20 + offsetof( struct block_header, contents ) ` bytes.
   The address of the contents of this block is what `malloc` will return.
 
-## Algorithm `free(void* addr)`.
+## `free(void* addr)` algorithm.
 
 - If `addr == NULL`, then we do nothing. 
 - We need to get from `addr` (which points to the beginning of the `contents` field) the address of the beginning of the header (for this we subtract `sizeof(struct mem)` from it).
@@ -109,7 +109,7 @@ We now describe a few more aspects of allocation.
 - how to free the memory allocated for the heap?
 
 
-## Algorithm `malloc(n)`.
+## `malloc(n)` algorithm.
 
 - It makes no sense to allocate a block of size, say 1 byte; even its header will take up more space.
   Let the minimum capacity of a block be denoted as follows:
@@ -128,10 +128,10 @@ We now describe a few more aspects of allocation.
   - If you fail to allocate the region close to the end of the heap, you should allocate the region "wherever you can". The last block of the previous region will be connected to the first block of the new region. 
  
  
-## Algorithm `free(void* addr)`
+## `free(void* addr)` algorithm
 
 - In addition to what has already been written about `free`, when you free a block, you can merge it with all the free blocks following it.
 
-## Algorithm `heap_term(void)`
+## `heap_term(void)` algorithm
 
 - To complete the allocator it is necessary to go through all memory regions allocated earlier with `mmap` and call `munmap` for them.
