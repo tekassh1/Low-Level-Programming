@@ -1,14 +1,14 @@
 # Assignment: Sepia filter in C and Assembly
 
-Лабораторная работа: фильтр сепия на C и Ассемблере
+Lab Assignment: Sepia filter in C and Assembly
 
-# Задание
+## Task
 
-В данном задании вам надо реализовать фильтр сепия на языке C и на языке ассемблера. 
-- Реализация на языке ассемблера должна использовать векторные инструкции процессора SSE, за счет чего должно быть получено ускорение по сравнению с реализацией на C. 
-- Задание считается сданным только в случае ускорения работы фильтра.
-- Необходимо написать тест, который будет сравнивать время работы двух реализаций.
-- Для работы с изображениями следует использовать библиотеку работы с BMP файлами, которую вы реализовали в третьей лаботаторной работе.
+In this assignment, you are required to implement a sepia filter in both C and Assembly languages.
+- The Assembly implementation should utilize the SSE vector instructions of the processor, aiming for acceleration compared to the C implementation.
+- The task is considered completed only if there is a noticeable speedup in the filter's performance.
+- You need to write a test that compares the execution time of both implementations.
+- For image processing, use the BMP file manipulation library that you implemented in the third lab assignment.
 
 ### Project result
 ```
